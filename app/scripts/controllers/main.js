@@ -31,6 +31,7 @@ angular.module('diagramasApp')
                 var posX = evt.tx - $scope.papel_diagrama.el.offsetLeft - parseInt($scope.papel_diagrama.$el.css('padding-left'), 10);
                 var posY = evt.ty - $scope.papel_diagrama.el.offsetTop - parseInt($scope.papel_diagrama.$el.css('padding-top'), 10);
 
+                console.log(elemento);
                 var elem = elemento.clone();
                 //		console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
                 elem.translate(posX, posY);
@@ -57,7 +58,8 @@ angular.module('diagramasApp')
                 //console.log($scope.elementos[elem]);
                 $scope.diagrama.addCell($scope.elementos[elem]);
                 $scope.figuras[i] = $scope.papel_diagrama.findViewByModel($scope.elementos[elem]).$el.clone();
-                $scope.figuras[i++].id = joint.util.uuid();
+                $scope.figuras[i].id = joint.util.uuid();
+                $scope.figuras[i++].referenciaElemento = $scope.elementos[elem];
             }
             $scope.conectores = []; //Todo lo que pongo en esta variable va a aparecer en el panel como conector de elementos del diagrama
             i = 0;
@@ -94,23 +96,29 @@ angular.module('diagramasApp')
                 $scope.diagrama.addCell($scope.enlaces[enlace]);
                 $scope.conectores[i] = $scope.papel_diagrama.findViewByModel($scope.enlaces[enlace]).$el.clone();
                 $scope.conectores[i].indice = i;
+                $scope.conectores[i].nombre = enlace;
                 $scope.conectores[i++].id = joint.util.uuid();
 //                console.log($scope.conectores[i-1]);
             }
             $scope.seleccionarConector = function(conector){
                 conector = conector.indice;
-                console.log($("#conector" + conector)[0].classList);
-                if($scope.conectorElegido != ''){
-                    $("#conector" + $scope.conectorElegido)[0].classList = [];
+//                console.log($("#conector" + conector)[0].classList);
+                if($scope.conectorElegido !== ''){
+                    $("#conector" + $scope.conectorElegido)[0].classList.remove("elegido");;
                     if($scope.conectorElegido != conector){
                         $scope.conectorElegido = conector;
                         $("#conector" + $scope.conectorElegido)[0].classList.add("elegido");
-                    }else
+                        $scope.modo = 'enlace';
+                    }else{
+                        $scope.modo = '';
                         $scope.conectorElegido = '';
+                    }
                 }else{
                     $scope.conectorElegido = conector;
                     $("#conector" + $scope.conectorElegido)[0].classList.add("elegido");
+                    $scope.modo = 'enlace';
                 }
+//                console.log($scope.modo, $scope.conectorElegido);
             }
             $scope.papel_diagrama.on('cell:pointerdblclick', function (cellView, evt, x, y) {
                 switch ($scope.modo) {
@@ -120,9 +128,9 @@ angular.module('diagramasApp')
                     break;
                 case 'enlace':
                     //			console.log("enlazar ", cellView, "con evento: ", evt, "En la pos: ", x, y);
-
+                        console.log($scope.conectores[$scope.conectorElegido].nombre);
                     if ($scope.enlaceAux) {
-                        var enlace = $scope.enlaces.estandar.clone();
+                        var enlace = new enlacesJoint[$scope.conectores[$scope.conectorElegido].nombre]();
                         enlace.set('source', {
                             id: $scope.enlaceAux.model.id
                         });
@@ -132,6 +140,7 @@ angular.module('diagramasApp')
                         $scope.diagrama.addCell(enlace);
                         $scope.enlaceAux.unhighlight();
                         $scope.enlaceAux = undefined;
+                        $scope.modo = '';
                     } else {
                         $scope.enlaceAux = cellView;
                         cellView.highlight();
@@ -141,43 +150,46 @@ angular.module('diagramasApp')
                 default:
                     //console.log("Editar atributos del elemento: ", cellView);
                     var textos = $('#' + cellView.id + ' text');
-                    //console.log('Meter editores para los textos.. ', textos);
+//                    console.log('Meter editores para los textos.. ', textos);
                     for (var i = 0; i < textos.length; i++) {
                         var texto = textos[i];
-                        console.log(texto);
+//                        console.log(texto);
                         var editor = document.createElement('textarea');
                         /*var editor = document.createElement('input');
 			    editor.setAttribute('type', 'text');*/
                         var estilo = editor.style;
                         $('body').append(editor);
                         var medidas = texto.getBoundingClientRect();
-                        console.log(medidas);
-                        console.log(editor);
+//                        console.log(medidas);
+//                        console.log(editor);
                         estilo.position = 'absolute';
                         estilo.top = parseInt(medidas.top) + "px";
                         estilo.left = parseInt(medidas.left) + "px";
                         estilo.height = parseInt(medidas.height) + "px";
                         estilo.fontSize = texto.attributes["font-size"].nodeValue + 'px';
-                        editor.rows = 1;
+//                        editor.rows = 1;
                         estilo.width = parseInt(medidas.width + 30) + "px";
                         estilo.padding = 0;
-                        editor.value = $scope.diagrama.getCell(cellView.model.id).attr('text/text');
-                        editor.focus();
-                        editor.setSelectionRange(0, editor.textLength);
+                        editor.value = texto.textContent;
+//                        editor.focus();
+//                        editor.setSelectionRange(0, editor.textLength);
                         editor.referenciaTexto = texto;
                         editor.referenciaCell = $scope.diagrama.getCell(cellView.model.id);
+                        editor.classList.add("volameLejos");
                         editor.onblur = (function (evt) {
-                            console.log(this, evt);
+                            console.log(this, evt, this.referenciaCell, this.referenciaTexto);
                             //                    this.referenciaTexto.innerHTML = this.value;
-                            this.referenciaCell.attr('text/text', this.value);
-                            this.id = 'sacame'
+//                            this.referenciaCell.attr('text/text', this.value);
+                            this.referenciaTexto.innerText = this.value;
+                            this.id = 'sacame';
                             $('#sacame').remove();
                         });
-                        editor.onkeypress = function (evt) {
-
-                            }
+                        editor.onfocus = function (evt) {
+                            this.classList.remove("volameLejos");
+                            console.log(this);
+                            $('.volameLejos').remove();
+                        }
                             //console.log(texto);
-
                     }
                 }
             });

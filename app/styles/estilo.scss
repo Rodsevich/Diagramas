@@ -48,7 +48,7 @@
     }
     herramienta{
 	cursor: pointer;
-	img[activo="true"]{
+	*[activo="true"]{
 	    background-color: orange;
 	}
     }	
