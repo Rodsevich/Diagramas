@@ -120,6 +120,28 @@ angular.module('diagramasApp')
                 }
 //                console.log($scope.modo, $scope.conectorElegido);
             }
+//            $scope.elemFoco = null;
+//            $scope.papel_diagrama.on('cell:pointerclick', function (cellView, evt) {
+//                $scope.elemFoco = $scope.diagrama.getCell(cellView.model.id);
+//                console.log(evt);
+//            });
+//            $scope.papel_diagrama.on('cell:mouseout', function (cellView, evt) {
+//                $scope.elemFoco = null;
+//                console.log(evt);
+//            });
+//            document.onkeypress = function (e) {
+//                console.log(e, $scope.elemFoco);
+//                if($scope.elemFoco != null){
+//                    e = e || window.event;
+//                    // use e.keyCode
+//                    if(e.key == '+' || e.charCode == 43){
+//                        console.log($scope.elemFoco.getBBox(), "ando");
+//                    }
+//                    if(e.key == '-' || e.charCode == 45){
+//                        console.log($scope.elemFoco.getBBox(), "ando");
+//                    }
+//                }
+//            };
             $scope.papel_diagrama.on('cell:pointerdblclick', function (cellView, evt, x, y) {
                 switch ($scope.modo) {
                 case 'borrado':
@@ -180,7 +202,7 @@ angular.module('diagramasApp')
                             console.log(this, evt, this.referenciaCell, this.referenciaTexto);
                             //                    this.referenciaTexto.innerHTML = this.value;
 //                            this.referenciaCell.attr('text/text', this.value);
-                            this.referenciaTexto.innerText = this.value;
+                            this.referenciaTexto.textContent = this.value;
                             this.id = 'sacame';
                             $('#sacame').remove();
                         });
@@ -232,7 +254,8 @@ angular.module('diagramasApp')
                 console.log(JSON.stringify($scope.diagrama.toJSON()));
                 var pom = document.createElement('a');
                 //              pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify($scope.diagrama.toJSON())));
-                pom.href = window.URL.createObjectURL(new Blob([encodeURIComponent(JSON.stringify($scope.diagrama.toJSON()))], {
+                pom.href = window.URL.createObjectURL(new Blob([JSON.stringify($scope.diagrama.toJSON())], {
+//                pom.href = window.URL.createObjectURL(new Blob([encodeURIComponent(JSON.stringify($scope.diagrama.toJSON()))], {
                     type: 'text/json'
                 }));
                 pom.setAttribute('download', "diagrama.json");
