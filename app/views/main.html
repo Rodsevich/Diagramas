@@ -1,0 +1,35 @@
+<div id="hoja" ng-drop-success="onDropComplete($data,$event)" ng-drop="true" class="columns small-7 medium-8 large-9 {{modo}}">
+    <!--<span>Diagramas</span>-->
+    <div id="papel-diagrama" />
+</div>
+
+<aside id="panel" class="columns small-4 medium-3 large-2">
+    <header>
+        <span>Elementos</span>
+    </header>
+
+    <div class="contenedor-figura" ng-repeat="fig in figuras">
+        <!--<span>Figura {{$index}}: {{fig.id}}</span>-->
+        <div ng-drag="true" ng-drag-data="fig.referenciaElemento">
+            <figura ng-attr-figura="fig" />
+        </div>
+    </div>
+
+    <span>Conectores</span>
+    <div class="contenedor-figura" ng-repeat="conector in conectores">
+        <conector data-conector="conector" data-funcion-conectora="seleccionarConector(conector)" data-indice="{{conector.indice}}" />
+    </div>
+
+    <span>Herramientas</span>
+<!--    <herramienta data-imagen="images/enlace.png" data-operacion="enlace" data-var-modo="modo"></herramienta>-->
+    <herramienta data-imagen="images/Pink-eraser.png" data-operacion="borrado" data-var-modo="modo" style="display: inline-block"></herramienta>
+<!--    <span>Operaciones</span>-->
+    <div id="file-image" style="display: inline-block">
+        <input type="file" id="files">
+        <img src="images/importar.png" />
+    </div>
+    <img ng-click="exportar()" width="70" src="images/exportar.png" style="display: inline-block">
+    <!-- <div class="elementoPanel" ng-repeat="elem in elementos">
+	<svg ng-bind="elem.figura" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-elementos" />
+    </div> -->
+</aside>
