@@ -41,20 +41,11 @@ angular.module('diagramasApp')
             $scope.figuras = []; //Todo lo que pongo en esta variable va a aparecer en el panel como elemento agregable al diagrama
             var i = 0;
             for (var elem in elementosJoint) {
-                if (elem == "Comienzo" || elem == "Fin") {
-                    $scope.elementos[elem] = new elementosJoint[elem]({
-                        size: {
-                            width: 20,
-                            height: 20
-                        }
-                    });
-                } else {
-                    $scope.elementos[elem] = new elementosJoint[elem]({
-                        name: elem,
-                        attributes: ["atributos[] :String"],
-                        methods: ['+ getAlgo():Type', '+ setAlgo():Type'],
-                    });
-                }
+                $scope.elementos[elem] = new elementosJoint[elem]({
+                    name: elem,
+                    attributes: ["atributos[] :String"],
+                    methods: ['+ getAlgo():Type', '+ setAlgo():Type'],
+                });
                 //console.log($scope.elementos[elem]);
                 $scope.diagrama.addCell($scope.elementos[elem]);
                 $scope.figuras[i] = $scope.papel_diagrama.findViewByModel($scope.elementos[elem]).$el.clone();
@@ -129,19 +120,48 @@ angular.module('diagramasApp')
 //                $scope.elemFoco = null;
 //                console.log(evt);
 //            });
-//            document.onkeypress = function (e) {
-//                console.log(e, $scope.elemFoco);
-//                if($scope.elemFoco != null){
-//                    e = e || window.event;
-//                    // use e.keyCode
-//                    if(e.key == '+' || e.charCode == 43){
-//                        console.log($scope.elemFoco.getBBox(), "ando");
-//                    }
-//                    if(e.key == '-' || e.charCode == 45){
-//                        console.log($scope.elemFoco.getBBox(), "ando");
-//                    }
-//                }
-//            };
+            document.onkeypress = function (e) {
+//                console.log(e);
+                if($scope.elemFoco != null){
+                    e = e || window.event;
+                    var elem = $scope.diagrama.getCell($scope.elemFoco.model.id);
+                    var tamanios = elem.getBBox();
+                    var tamanio_cambio = (e.shiftKey) ? 10 : 1;
+                    // use e.keyCode
+                    if(e.key == '+' || e.charCode == 43){
+                        elem.resize(tamanios.width + tamanio_cambio,tamanios.height + tamanio_cambio);
+                    }
+                    if(e.key == '-' || e.charCode == 45){
+                        elem.resize(tamanios.width - tamanio_cambio,tamanios.height - tamanio_cambio);
+                    }
+                }
+            };
+
+            $scope.papel_diagrama.on('blank:pointerclick', function (cellView, evt, x, y) {
+                if($scope.elemFoco != null){
+                    $scope.elemFoco.unhighlight();
+                    $scope.elemFoco = null;
+                }
+            });
+            
+            $scope.papel_diagrama.on('cell:pointerclick', function (cellView, evt, x, y) {
+                if(evt.ctrlKey){
+                    if($scope.elemFoco == null){
+                        $scope.elemFoco = cellView;
+                        cellView.highlight();
+                    }else{
+                        $scope.elemFoco.unhighlight();
+                        if($scope.elemFoco == cellView)
+                            $scope.elemFoco = null;
+                        else{
+                            cellView.highlight();
+                            $scope.elemFoco = cellView;
+                        }
+                    }
+                }
+//                $scope.diagrama.getCell(cellView.model.id).resize(width, height);
+                
+            });
             $scope.papel_diagrama.on('cell:pointerdblclick', function (cellView, evt, x, y) {
                 switch ($scope.modo) {
                 case 'borrado':
@@ -171,47 +191,54 @@ angular.module('diagramasApp')
                     break;
                 default:
                     //console.log("Editar atributos del elemento: ", cellView);
-                    var textos = $('#' + cellView.id + ' text');
-//                    console.log('Meter editores para los textos.. ', textos);
-                    for (var i = 0; i < textos.length; i++) {
-                        var texto = textos[i];
-//                        console.log(texto);
-                        var editor = document.createElement('textarea');
+                        
+//                    var editables = $('#' + cellView.id + ' text');
+                    var elem = $scope.diagrama.getCell(cellView.model.id);
+                    var pathEdicion = elem.attributes.editables;
+//                        window.elem = elem;
+//                        window.vista = cellView;
+//                        console.log(elem, vista);
+                    for (var i = 0; i < pathEdicion.length; i++) {
+                        var selector = pathEdicion[i].split('/').reverse().join('');
+                        var editando = $(selector);
+                        console.log(editando);
                         /*var editor = document.createElement('input');
 			    editor.setAttribute('type', 'text');*/
+                        var editor = document.createElement('textarea');
                         var estilo = editor.style;
                         $('body').append(editor);
-                        var medidas = texto.getBoundingClientRect();
-//                        console.log(medidas);
-//                        console.log(editor);
+                        
+                        console.log(editando);
+                        editando = _.find(
+                            editando,
+                            function(e){return $(e).parentsUntil(cellView.$el, 'svg').length == 0}
+                        );
+                        var medidas = editando.getBoundingClientRect();
                         estilo.position = 'absolute';
                         estilo.top = parseInt(medidas.top) + "px";
                         estilo.left = parseInt(medidas.left) + "px";
                         estilo.height = parseInt(medidas.height) + "px";
-                        estilo.fontSize = texto.attributes["font-size"].nodeValue + 'px';
+                        estilo.fontSize = editando.attributes["font-size"].nodeValue + 'px';
 //                        editor.rows = 1;
                         estilo.width = parseInt(medidas.width + 30) + "px";
                         estilo.padding = 0;
-                        editor.value = texto.textContent;
+                        editor.value = editando.textContent;
 //                        editor.focus();
 //                        editor.setSelectionRange(0, editor.textLength);
-                        editor.referenciaTexto = texto;
-                        editor.referenciaCell = $scope.diagrama.getCell(cellView.model.id);
-                        editor.classList.add("volameLejos");
+                        editor.referenciaCell = elem;
+                        editor.referenciaEditable = pathEdicion[i];
+                        editor.classList.add("volame");
                         editor.onblur = (function (evt) {
-                            console.log(this, evt, this.referenciaCell, this.referenciaTexto);
-                            //                    this.referenciaTexto.innerHTML = this.value;
-//                            this.referenciaCell.attr('text/text', this.value);
-                            this.referenciaTexto.textContent = this.value;
+                            this.referenciaCell.attr(this.referenciaEditable, this.value);
                             this.id = 'sacame';
                             $('#sacame').remove();
                         });
                         editor.onfocus = function (evt) {
-                            this.classList.remove("volameLejos");
+                            this.classList.remove("volame");
                             console.log(this);
-                            $('.volameLejos').remove();
+                            $('.volame').remove();
                         }
-                            //console.log(texto);
+                            //console.log(editando);
                     }
                 }
             });
@@ -269,5 +296,15 @@ angular.module('diagramasApp')
                 }
             }, true);
             $scope.diagrama.clear();
+            window.longa = $scope.prueba = new joint.shapes.elementos.Base({
+                position: { x: 50, y: 50 },
+                attrs: {
+                    '.outPorts rect': { fill: '#E74C3C' }
+                }
+            });
+            $scope.prueba.set('inPorts', ['longa']);
+            console.log(window.longa.attr('inPorts'));
+            $scope.diagrama.addCell($scope.prueba);
+            
  }]); //angular.element($("#panel")).scope().papel_panel.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el
 //$("#v-2").append(angular.element($("#panel")).scope().papel_diagrama.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el.clone())

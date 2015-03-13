@@ -2,6 +2,7 @@
 
 angular.module('diagramasApp')
     .factory('elementosJoint', ['joint', function (joint) {
+        joint.shapes.elementos = {};
         if (!joint.shapes.uml)
             joint.shapes.uml = {};
         joint.shapes.uml.Class = joint.shapes.basic.Generic.extend({
@@ -71,7 +72,8 @@ angular.module('diagramasApp')
 
                 name: [],
                 attributes: [],
-                methods: []
+                methods: [],
+                editables: ['name', 'attributes', 'methods'],
 
             }, joint.shapes.basic.Generic.prototype.defaults),
 
@@ -335,13 +337,41 @@ angular.module('diagramasApp')
             }, joint.shapes.basic.Generic.prototype.defaults)
 
         });
+        
+        joint.shapes.elementos.Base = joint.shapes.devs.Model.extend({
+           defaults: joint.util.deepSupplement({
+               size: {
+                   width: 110,
+                   height: 110
+               },
+               inPorts: ['inopj1','in2'],
+               outPorts: ['out'],
+               attrs: {
+                   rect: { fill: '#90b42d' },
+                   '.label': {
+                        text: 'Proceso',
+//                        'ref-x': 0.5,
+                        'ref-y': 0.5,
+//                        'x-alignment': 'middle',
+                        'y-alignment': 'middle',
+                        fill: '#260b81',
+                        'font-size': 22
+                    },
+                   '.inPorts rect': { fill: '#f25242' },
+                   '.outPorts rect': { fill: '#983126' }
+               },
+               editables: ['.label/text', '.port-label/text'],
+               editablesRenderizados: ['text.label', '.ports text.port-label']
+           }, joint.shapes.devs.Model.prototype.defaults)
+        });
 
         return {
-            Comienzo: joint.shapes.uml.StartState,
-            Fin: joint.shapes.uml.EndState,
+            Base: joint.shapes.elementos.Base,
+//            Comienzo: joint.shapes.uml.StartState,
+//            Fin: joint.shapes.uml.EndState,
             Clase: joint.shapes.uml.Class,
-            ClaseAbstracta: joint.shapes.uml.Abstract,
-            Interfaz: joint.shapes.uml.Interface,
-            Estado: joint.shapes.uml.State
+//            ClaseAbstracta: joint.shapes.uml.Abstract,
+//            Interfaz: joint.shapes.uml.Interface,
+//            Estado: joint.shapes.uml.State
         }
     }]);
