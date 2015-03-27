@@ -170,7 +170,7 @@ angular.module('diagramasApp')
                     break;
                 case 'enlace':
                     //			console.log("enlazar ", cellView, "con evento: ", evt, "En la pos: ", x, y);
-                        console.log($scope.conectores[$scope.conectorElegido].nombre);
+//                        console.log($scope.conectores[$scope.conectorElegido].nombre);
                     if ($scope.enlaceAux) {
                         var enlace = new enlacesJoint[$scope.conectores[$scope.conectorElegido].nombre]();
                         enlace.set('source', {
@@ -277,12 +277,13 @@ angular.module('diagramasApp')
                 alert('importa traqnuilo ;) ');
             }
             $scope.exportar = function () {
-                console.log($scope.diagrama.toJSON());
-                console.log(JSON.stringify($scope.diagrama.toJSON()));
+                var data = $scope.diagrama.toJSON();
+                //Agregamos los links de los ports al JSON
+                data.enlaces = $scope.enlaces;
+                var texto = JSON.stringify(data);
+                console.log(texto);
                 var pom = document.createElement('a');
-                //              pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify($scope.diagrama.toJSON())));
-                pom.href = window.URL.createObjectURL(new Blob([JSON.stringify($scope.diagrama.toJSON())], {
-//                pom.href = window.URL.createObjectURL(new Blob([encodeURIComponent(JSON.stringify($scope.diagrama.toJSON()))], {
+                pom.href = window.URL.createObjectURL(new Blob([texto], {
                     type: 'text/json'
                 }));
                 pom.setAttribute('download', "diagrama.json");
@@ -303,8 +304,34 @@ angular.module('diagramasApp')
                 }
             });
             $scope.prueba.set('inPorts', ['longa']);
-            console.log(window.longa.attr('inPorts'));
             $scope.diagrama.addCell($scope.prueba);
             
+            window.enlaces = $scope.enlaces = {};
+            $scope.diagrama.on("add", function(cell){
+               if(cell.attributes.type == "link"){
+                   $scope.enlaces[cell.id] = '';
+               }
+            });
+            $scope.diagrama.on("remove", function(cell){
+               if(cell.attributes.type == "link"){
+                   delete $scope.enlaces[cell.id];
+               }
+            });
+            $scope.diagrama.on('change:source change:target', function(link) {
+                var target = link.get('target');
+                if( target.id ){
+                    var source = link.get('source');
+                    var sourcePort = source.port;
+                    var sourceNombre = $scope.diagrama.getCell(source.id).attr('.label/text');
+                    var targetPort = link.get('target').port;
+                    var targetNombre = $scope.diagrama.getCell(target.id).attr('.label/text');
+                    var desde = sourceNombre + '.' + sourcePort;
+                    var hasta = targetNombre + '.' + targetPort;
+                    $scope.enlaces[link.id] = desde + " --> " + hasta;
+                    console.log(JSON.stringify($scope.enlaces));
+                    console.log($scope.enlaces);
+                    console.log(desde,hasta);
+                }
+            });
  }]); //angular.element($("#panel")).scope().papel_panel.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el
 //$("#v-2").append(angular.element($("#panel")).scope().papel_diagrama.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el.clone())

@@ -100,11 +100,11 @@ angular.module('diagramasApp')
             }
         });
         return {
-            Herencia: joint.shapes.uml.Flecha,
-            Asociacion: joint.shapes.uml.Association,
-            Transicion: joint.shapes.uml.Transition,
-            Generalizacion: joint.shapes.uml.Generalization,
-            Implementacion: joint.shapes.uml.Implementation,
-            Composicion: joint.shapes.uml.Composition
+//            Herencia: joint.shapes.uml.Flecha,
+//            Asociacion: joint.shapes.uml.Association,
+//            Transicion: joint.shapes.uml.Transition,
+//            Generalizacion: joint.shapes.uml.Generalization,
+//            Implementacion: joint.shapes.uml.Implementation,
+//            Composicion: joint.shapes.uml.Composition
         }
     }]);

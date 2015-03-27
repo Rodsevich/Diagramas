@@ -136,3 +136,14 @@ $margen-hoja-largo: #{$margen-hoja}vw;
     right: 0;
     opacity: 0;
 }
+
+.manejarPorts{
+    opacity: 0.03;
+    transition: opacity 1.4s;
+    cursor: pointer;
+}
+
+.element:hover .manejarPorts{
+    transition: opacity 0.3s;
+    opacity: 1;
+}

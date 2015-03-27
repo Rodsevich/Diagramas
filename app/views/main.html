@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <span>Conectores</span>
+    <span ng-if="conectores">Conectores</span>
     <div class="contenedor-figura" ng-repeat="conector in conectores">
         <conector data-conector="conector" data-funcion-conectora="seleccionarConector(conector)" data-indice="{{conector.indice}}" />
     </div>

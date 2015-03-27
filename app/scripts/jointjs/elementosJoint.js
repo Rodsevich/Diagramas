@@ -344,7 +344,7 @@ angular.module('diagramasApp')
                    width: 110,
                    height: 110
                },
-               inPorts: ['inopj1','in2'],
+               inPorts: ['in1','in2'],
                outPorts: ['out'],
                attrs: {
                    rect: { fill: '#90b42d' },
@@ -360,8 +360,8 @@ angular.module('diagramasApp')
                    '.inPorts rect': { fill: '#f25242' },
                    '.outPorts rect': { fill: '#983126' }
                },
-               editables: ['.label/text', '.port-label/text'],
-               editablesRenderizados: ['text.label', '.ports text.port-label']
+               editables: ['.label/text'],
+               editablesRenderizadosEnVista: ['text.label']
            }, joint.shapes.devs.Model.prototype.defaults)
         });
 
