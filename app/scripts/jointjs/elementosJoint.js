@@ -71,11 +71,12 @@ angular.module('diagramasApp')
                 },
 
                 name: [],
-                attributes: [],
-                methods: [],
-                editables: ['name', 'attributes', 'methods'],
-
+                attributes: ["atributos[] :String"],
+                methods: ['+ getAlgo():Type', '+ setAlgo():Type'],
             }, joint.shapes.basic.Generic.prototype.defaults),
+            //El primer item es el usado para nombrar al elemento
+            editables: ['name', 'attributes', 'methods'],
+            editablesRenderizadosEnVista: ['.uml-class-name-text/text', '.uml-class-attributes-text/text', '.uml-class-methods-text/text'],
 
             initialize: function () {
 
@@ -110,7 +111,7 @@ angular.module('diagramasApp')
                         type: 'methods',
                         text: this.get('methods')
                     }
-        ];
+                ];
 
                 var offsetY = 0;
 
@@ -340,6 +341,7 @@ angular.module('diagramasApp')
         
         joint.shapes.elementos.Base = joint.shapes.devs.Model.extend({
            defaults: joint.util.deepSupplement({
+               type: 'elementos.Base',
                size: {
                    width: 110,
                    height: 110
@@ -347,9 +349,9 @@ angular.module('diagramasApp')
                inPorts: ['in1','in2'],
                outPorts: ['out'],
                attrs: {
-                   rect: { fill: '#90b42d' },
+                   '.body': { fill: '#90b42d', rx: 2, ry: 2 },
                    '.label': {
-                        text: 'Proceso',
+                        text: 'Nombrame',
 //                        'ref-x': 0.5,
                         'ref-y': 0.5,
 //                        'x-alignment': 'middle',
@@ -358,18 +360,93 @@ angular.module('diagramasApp')
                         'font-size': 22
                     },
                    '.inPorts rect': { fill: '#f25242' },
-                   '.outPorts rect': { fill: '#983126' }
+                   '.outPorts rect': { fill: '#983126' },
+//                   '.inPorts .port-label': {  },
+//                   '.outPorts .port-label': {}
                },
-               editables: ['.label/text'],
-               editablesRenderizadosEnVista: ['text.label']
-           }, joint.shapes.devs.Model.prototype.defaults)
+               nombre: "Nombrame",
+           }, joint.shapes.devs.Model.prototype.defaults),
+           //En el primer elemento de 'editables' pone lo que va a servir como nombre del objeto
+            editables: ['nombre'],
+            initialize: function(){
+                joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
+                this.on("change:nombre", function(modelo, nuevoValor, opciones){
+                    //modelo === this
+                    this.attr(".label/text", nuevoValor);
+                })
+            },
+            editablesRenderizadosEnVista: ['.label/text']
+        });
+        
+        joint.shapes.elementos.Contenedor = joint.shapes.devs.Model.extend({
+            portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/></g>',
+            defaults: joint.util.deepSupplement({
+                type: 'elementos.Contenedor',
+                size: {
+                   width: 190,
+                   height: 100
+               },
+               inPorts: ['in1','in2'],
+               outPorts: ['out'],
+               attrs: {
+                   '.body': { fill: 'rgba(0,0,0,0.04)', rx: 3, ry: 3 },
+                   '.label': {
+                       text: 'Nombrame',
+                       'ref-x': 10,
+                       'ref-y': 2,
+                       'x-alignment': 'left',
+                       'y-alignment': 'top',
+                       'text-anchor': 'left',
+                       fill: '#000',
+                       'font-size': 22
+                    },
+                   '.port-body': {
+                       magnet: true,
+                       stroke: '#000000',
+                       height: 20,
+                       x: -10, y: -10
+                    },
+                   //Le agrege en getPortAttrs la ref a sus port-label:
+                   '.inPorts .port-body': { fill: 'rgba(240,170,170,1)' },
+                   '.outPorts .port-body': { fill: 'rgba(170,240,170,1)' },
+//                   '.outPorts .port-label': { x:15 },
+                   '.inPorts .port-label': { fill: '#00F', 'font-size': 14, 'font-weight':'bold', 'text-anchor': 'start', x:-5, 'ref-y': 5 }
+               },
+               nombre: "Nombrame",
+           }, joint.shapes.devs.Model.prototype.defaults),
+           //En el primer elemento de 'editables' pone lo que va a servir como nombre del objeto
+            editables: ['nombre'],
+            initialize: function(){
+                joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
+                this.on("change:nombre", function(modelo, nuevoValor, opciones){
+                    //modelo === this
+                    this.attr(".label/text", nuevoValor);
+                })
+            },
+            editablesRenderizadosEnVista: ['.label/text']
+        });
+        
+        joint.shapes.elementos.BaseView = joint.shapes.devs.ModelView;
+        joint.shapes.elementos.ContenedorView = joint.shapes.devs.ModelView.extend({
+            update: function(){
+                joint.shapes.devs.ModelView.prototype.update.apply(this, arguments);
+                //Ajustar el tamaño de los inPorts al de sus labels
+                var ports = this.$(".inPorts .port");
+                console.log(ports);
+                for(var i = 0; i < ports.length; i++){
+                    var body = ports[i].children[0];
+                    var label = ports[i].children[1];
+                    body.setAttribute("width", label.getBBox().width + 10);
+                }
+            }
         });
 
         return {
-            Base: joint.shapes.elementos.Base,
+//            Proceso: joint.shapes.elementos.Base,
+            Contenedor: joint.shapes.elementos.Contenedor,
 //            Comienzo: joint.shapes.uml.StartState,
 //            Fin: joint.shapes.uml.EndState,
-            Clase: joint.shapes.uml.Class,
+//            Clase: joint.shapes.uml.Class,
 //            ClaseAbstracta: joint.shapes.uml.Abstract,
 //            Interfaz: joint.shapes.uml.Interface,
 //            Estado: joint.shapes.uml.State

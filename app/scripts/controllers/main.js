@@ -12,7 +12,7 @@
 angular.module('diagramasApp')
     .controller('MainCtrl', ['$scope', 'joint', 'elementosJoint', 'enlacesJoint',
         function ($scope, joint, elementosJoint, enlacesJoint) {
-            $scope.elementos = [];
+            $scope.elementos = {};
             $scope.modo = '';
             $scope.enlaces = [];
             $scope.diagrama = new joint.dia.Graph();
@@ -31,9 +31,9 @@ angular.module('diagramasApp')
                 var posX = evt.tx - $scope.papel_diagrama.el.offsetLeft - parseInt($scope.papel_diagrama.$el.css('padding-left'), 10);
                 var posY = evt.ty - $scope.papel_diagrama.el.offsetTop - parseInt($scope.papel_diagrama.$el.css('padding-top'), 10);
 
-                console.log(elemento);
+//                console.log(elemento);
                 var elem = elemento.clone();
-                //		console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
+//                console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
                 elem.translate(posX, posY);
                 $scope.diagrama.addCell(elem);
             };
@@ -41,15 +41,17 @@ angular.module('diagramasApp')
             $scope.figuras = []; //Todo lo que pongo en esta variable va a aparecer en el panel como elemento agregable al diagrama
             var i = 0;
             for (var elem in elementosJoint) {
-                $scope.elementos[elem] = new elementosJoint[elem]({
-                    name: elem,
-                    attributes: ["atributos[] :String"],
-                    methods: ['+ getAlgo():Type', '+ setAlgo():Type'],
-                });
-                //console.log($scope.elementos[elem]);
+                //Arreglando aca
+                $scope.elementos[elem] = new elementosJoint[elem]();
+                $scope.elementos[elem].set($scope.elementos[elem].editables[0], elem);
                 $scope.diagrama.addCell($scope.elementos[elem]);
+                var BBox = $scope.elementos[elem].findView($scope.papel_diagrama).getBBox();
+                //Transladar segun los valores de BBox
+                $scope.elementos[elem].translate(Math.abs(BBox.x) + 2, Math.abs(BBox.y) - 2);
                 $scope.figuras[i] = $scope.papel_diagrama.findViewByModel($scope.elementos[elem]).$el.clone();
                 $scope.figuras[i].id = joint.util.uuid();
+                $scope.figuras[i].ancho = BBox.width;
+                $scope.figuras[i].alto = BBox.height;
                 $scope.figuras[i++].referenciaElemento = $scope.elementos[elem];
             }
             $scope.conectores = []; //Todo lo que pongo en esta variable va a aparecer en el panel como conector de elementos del diagrama
@@ -258,7 +260,6 @@ angular.module('diagramasApp')
 
             document.getElementById('files').addEventListener('change',
                 function (evt) {
-                    console.log(evt);
                     var files = evt.target.files; // FileList object
                     // Loop through the FileList and render image files as thumbnails.
                     for (var i = 0, f; f = files[i]; i++) {
@@ -266,7 +267,6 @@ angular.module('diagramasApp')
 
                         reader.onload = (function (theFile) {
                             return function (e) {
-                                console.log(e.target.result);
                                 $scope.diagrama.fromJSON(JSON.parse(e.target.result));
                             }
                         })(f);
@@ -281,7 +281,7 @@ angular.module('diagramasApp')
                 //Agregamos los links de los ports al JSON
                 data.enlaces = $scope.enlaces;
                 var texto = JSON.stringify(data);
-                console.log(texto);
+
                 var pom = document.createElement('a');
                 pom.href = window.URL.createObjectURL(new Blob([texto], {
                     type: 'text/json'
@@ -296,15 +296,7 @@ angular.module('diagramasApp')
                     evt.stopPropagation(); //porque el modo actual no lo permite
                 }
             }, true);
-            $scope.diagrama.clear();
-            window.longa = $scope.prueba = new joint.shapes.elementos.Base({
-                position: { x: 50, y: 50 },
-                attrs: {
-                    '.outPorts rect': { fill: '#E74C3C' }
-                }
-            });
-            $scope.prueba.set('inPorts', ['longa']);
-            $scope.diagrama.addCell($scope.prueba);
+//            $scope.diagrama.clear();
             
             window.enlaces = $scope.enlaces = {};
             $scope.diagrama.on("add", function(cell){
@@ -328,10 +320,11 @@ angular.module('diagramasApp')
                     var desde = sourceNombre + '.' + sourcePort;
                     var hasta = targetNombre + '.' + targetPort;
                     $scope.enlaces[link.id] = desde + " --> " + hasta;
-                    console.log(JSON.stringify($scope.enlaces));
-                    console.log($scope.enlaces);
-                    console.log(desde,hasta);
+//                    console.log(JSON.stringify($scope.enlaces));
+//                    console.log($scope.enlaces);
+//                    console.log(desde,hasta);
                 }
             });
+            window.escope = $scope;
  }]); //angular.element($("#panel")).scope().papel_panel.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el
 //$("#v-2").append(angular.element($("#panel")).scope().papel_diagrama.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el.clone())

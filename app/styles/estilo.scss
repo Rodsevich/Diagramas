@@ -33,9 +33,9 @@
     }
     figura {
         display: block;
-        svg {
-            max-height: 90px;
-        }
+//        svg {
+//            max-height: 90px;
+//        }
     }
     conector.elegido{
         background-color: rgba(0,205,0,0.2);
@@ -146,4 +146,17 @@ $margen-hoja-largo: #{$margen-hoja}vw;
 .element:hover .manejarPorts{
     transition: opacity 0.3s;
     opacity: 1;
+}
+
+figura{
+    .port-label{
+        font-weight: bold;
+    }
+    .manejarPorts{
+        display: none;
+    }
+}
+:not(.dragging) figura *{
+  cursor: grab!important;
+  opacity: 1!important;
 }

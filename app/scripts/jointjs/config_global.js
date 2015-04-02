@@ -15,7 +15,7 @@ angular.module('diagramasApp')
 joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
 
     markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/><g class="manejarPorts"/></g>',
-    portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/></g>',
+    portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/><text></text></g>',
     manejarPortsMarkup: '<g class="manejarInPorts"><path class="agregar"/><rect class="remover"/></g><g class="manejarOutPorts"><path class="agregar"/><rect class="remover"/></g>',
 
     defaults: joint.util.deepSupplement({
@@ -41,9 +41,9 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
             text: {
                 'pointer-events': 'none'
             },
-            '.label': { text: 'Model', 'ref-x': .5, 'ref-y': 10, ref: '.body', 'text-anchor': 'middle', fill: '#000' },
-            '.inPorts .port-label': { x:-15, dy: 4, 'text-anchor': 'end', fill: '#000' },
-            '.outPorts .port-label': { x: 15, dy: 4, fill: '#000' },
+            '.label': { 'ref-x': .5, 'ref-y': 10, ref: '.body', 'text-anchor': 'middle', fill: '#000' },
+            '.outPorts .port-label': { x: 15, fill: '#000' },
+            '.inPorts .port-label': { x:-15, 'text-anchor': 'end'},
 //            '.manejarPorts': {x:-20, y:-20, ref: '.body', width: 140, height: 120},
             '.manejarPorts path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
             '.manejarPorts .remover': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
@@ -78,6 +78,7 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
 
         attrs[portLabelSelector] = { text: portName };
         attrs[portBodySelector] = { port: { id: portName || _.uniqueId(type) , type: type } };
+//        attrs[portBodySelector] = { ref: portLabelSelector, port: { id: portName || _.uniqueId(type) , type: type } };
         attrs[portSelector] = { ref: '.body', 'ref-y': (index + 0.5) * (1 / total) };
 
         if (selector === '.outPorts') { attrs[portSelector]['ref-dx'] = 0; }
@@ -109,10 +110,13 @@ joint.shapes.devs.ModelView = joint.dia.ElementView.extend(_.extend({}, joint.sh
         this.$('.manejarPorts .manejarOutPorts .agregar').on('click', function(){ funcAgregar.apply(modelo, ["out"])});
         this.$('.manejarPorts .manejarOutPorts .remover').on('click', function(){ funcRemover.apply(modelo, ["out"])});
     },
-    initialize: function(){
-        joint.shapes.basic.PortsViewInterface.initialize.apply(this, arguments);
-
-    }
+//    initialize: function(){
+//        joint.shapes.basic.PortsViewInterface.initialize.apply(this, arguments);
+//        this.listenTo(this.model, 'change:nombre', this.actualizarNombre);
+//    },
+//    actualizarNombre: function(){
+//        
+//    }
 }));
 
         return (joint);
