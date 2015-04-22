@@ -392,6 +392,7 @@ angular.module('diagramasApp')
                    '.body': { fill: 'rgba(0,0,0,0.04)', rx: 3, ry: 3 },
                    '.label': {
                        text: 'Nombrame',
+                       ref: '.body',
                        'ref-x': 10,
                        'ref-y': 2,
                        'x-alignment': 'left',
@@ -410,12 +411,13 @@ angular.module('diagramasApp')
                    '.inPorts .port-body': { fill: 'rgba(240,170,170,1)' },
                    '.outPorts .port-body': { fill: 'rgba(170,240,170,1)' },
 //                   '.outPorts .port-label': { x:15 },
-                   '.inPorts .port-label': { fill: '#00F', 'font-size': 14, 'font-weight':'bold', 'text-anchor': 'start', x:-5, 'ref-y': 5 }
+                   '.inPorts .port-label': { fill: '#004', 'font-size': 14, 'font-weight':'bold', 'text-anchor': 'start', x:-5, 'ref-y': 5 }
                },
                nombre: "Nombrame",
            }, joint.shapes.devs.Model.prototype.defaults),
            //En el primer elemento de 'editables' pone lo que va a servir como nombre del objeto
             editables: ['nombre'],
+            editablesRenderizadosEnVista: ['.label'],
             initialize: function(){
                 joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
                 this.on("change:nombre", function(modelo, nuevoValor, opciones){
@@ -423,7 +425,14 @@ angular.module('diagramasApp')
                     this.attr(".label/text", nuevoValor);
                 })
             },
-            editablesRenderizadosEnVista: ['.label/text']
+            //Alterar la posicion de los inPorts poniendolos mas abajo, pa q se vea mejor el titulo
+            getPortAttrs: function(portName, index, total, selector, type){
+                var attrs = joint.shapes.devs.Model.prototype.getPortAttrs.apply(this, arguments);
+                if (selector === '.inPorts'){
+                    attrs[selector+">.port"+index]['ref-y'] = (index + 0.7) * (1 / total);
+                }
+                return attrs;
+            }
         });
         
         joint.shapes.elementos.BaseView = joint.shapes.devs.ModelView;
@@ -432,12 +441,13 @@ angular.module('diagramasApp')
                 joint.shapes.devs.ModelView.prototype.update.apply(this, arguments);
                 //Ajustar el tamaño de los inPorts al de sus labels
                 var ports = this.$(".inPorts .port");
-                console.log(ports);
+//                console.log(ports);
                 for(var i = 0; i < ports.length; i++){
                     var body = ports[i].children[0];
                     var label = ports[i].children[1];
                     body.setAttribute("width", label.getBBox().width + 10);
-                }
+                };
+//                this.model.attr(".label/x", ports[0].children[0].getAttribute("width"));
             }
         });
 

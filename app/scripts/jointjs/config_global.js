@@ -5,9 +5,22 @@ angular.module('diagramasApp')
         // No hago nada, esto es solo para llamar al factory y q borre el joint global
     }])
     .factory("joint", ["$window", function ($window) {
-        var joint = $window.joint;
-        //$window.joint = null;
-        //delete($window.joint);
+                var joint = $window.joint;
+                //$window.joint = null;
+                //delete($window.joint);
+
+                //Adicion de herramienta de resize en todas las vistas
+                joint.shapes.TooledViewInterface = {
+//                    renderTools: function () {
+//                        if(this.model.expandible){
+//                            
+//                        }
+//                    },
+                    update: function(){
+                        console.log("andando! :D");
+                        this.constructor.__super__.constructor.__super__.initialize.apply(this, arguments);
+                    }
+                };
         
         // Plugin para trabajar con Ports
         joint.shapes.devs = {};
@@ -17,6 +30,7 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
     markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/><g class="manejarPorts"/></g>',
     portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/><text></text></g>',
     manejarPortsMarkup: '<g class="manejarInPorts"><path class="agregar"/><rect class="remover"/></g><g class="manejarOutPorts"><path class="agregar"/><rect class="remover"/></g>',
+    expandible: true,
 
     defaults: joint.util.deepSupplement({
 
@@ -95,7 +109,7 @@ joint.shapes.devs.Link = joint.dia.Link.extend({
     }
 });
 
-joint.shapes.devs.ModelView = joint.dia.ElementView.extend(_.extend({}, joint.shapes.basic.PortsViewInterface,{
+var decoy = joint.dia.ElementView.extend(_.extend({}, joint.shapes.basic.PortsViewInterface,{
     update: function(){
         this.$container = this.$('.manejarPorts').empty();
         this.herramientasPorts = V(this.model.manejarPortsMarkup);
@@ -118,6 +132,8 @@ joint.shapes.devs.ModelView = joint.dia.ElementView.extend(_.extend({}, joint.sh
 //        
 //    }
 }));
+        window.longa = decoy;
+        joint.shapes.devs.ModelView = decoy.extend(joint.shapes.TooledViewInterface);
 
         return (joint);
     }]);

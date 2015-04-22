@@ -20,7 +20,7 @@ angular.module('diagramasApp')
             $scope.papel_diagrama = new joint.dia.Paper({
                 el: $('#hoja'),
                 width: $('#hoja').width(),
-                height: $('#hoja').height() + 200,
+                height: $('#hoja').height(),
                 model: $scope.diagrama,
                 gridSize: 1
             });
@@ -30,11 +30,10 @@ angular.module('diagramasApp')
                 //		console.log("drop success, evt:", evt);
                 var posX = evt.tx - $scope.papel_diagrama.el.offsetLeft - parseInt($scope.papel_diagrama.$el.css('padding-left'), 10);
                 var posY = evt.ty - $scope.papel_diagrama.el.offsetTop - parseInt($scope.papel_diagrama.$el.css('padding-top'), 10);
-
 //                console.log(elemento);
                 var elem = elemento.clone();
 //                console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
-                elem.translate(posX, posY);
+                elem.translate(posX , posY);
                 $scope.diagrama.addCell(elem);
             };
 
@@ -46,44 +45,31 @@ angular.module('diagramasApp')
                 $scope.elementos[elem].set($scope.elementos[elem].editables[0], elem);
                 $scope.diagrama.addCell($scope.elementos[elem]);
                 var BBox = $scope.elementos[elem].findView($scope.papel_diagrama).getBBox();
+                var transX = Math.abs(BBox.x) + 2;
+                var transY = Math.abs(BBox.y) - 2;
                 //Transladar segun los valores de BBox
-                $scope.elementos[elem].translate(Math.abs(BBox.x) + 2, Math.abs(BBox.y) - 2);
+                $scope.elementos[elem].translate(transX, transY);
                 $scope.figuras[i] = $scope.papel_diagrama.findViewByModel($scope.elementos[elem]).$el.clone();
                 $scope.figuras[i].id = joint.util.uuid();
                 $scope.figuras[i].ancho = BBox.width;
                 $scope.figuras[i].alto = BBox.height;
+//                $scope.elementos[elem].transX = transX;
+//                $scope.elementos[elem].transY = transY;
                 $scope.figuras[i++].referenciaElemento = $scope.elementos[elem];
             }
             $scope.conectores = []; //Todo lo que pongo en esta variable va a aparecer en el panel como conector de elementos del diagrama
             i = 0;
             for (var enlace in enlacesJoint) {
                 $scope.enlaces[enlace] = new enlacesJoint[enlace]({
-                    source: {
-                        x: 10,
-                        y: 50
-                    },
-                    target: {
-                        x: 110,
-                        y: 50
-                    },
-                    vertices: [{
-                        x: 40,
-                        y: 20
-                    }, {
-                        x: 70,
-                        y: 80
-                    }]
+                    source: {x: 10,y: 50},
+                    target: {x: 110,y: 50},
+                    vertices: [{x: 40,y: 20}, {x: 70,y: 80}]
                 });
                 $scope.enlaces[enlace].label(0, {
                     position: .5,
                     attrs: {
-                        rect: {
-                            fill: 'white'
-                        },
-                        text: {
-                            fill: 'black',
-                            text: enlace
-                        }
+                        rect: {fill: 'white'},
+                        text: {fill: 'black',text: enlace}
                     }
                 });
                 $scope.diagrama.addCell($scope.enlaces[enlace]);
@@ -196,25 +182,24 @@ angular.module('diagramasApp')
                         
 //                    var editables = $('#' + cellView.id + ' text');
                     var elem = $scope.diagrama.getCell(cellView.model.id);
-                    var pathEdicion = elem.attributes.editables;
-//                        window.elem = elem;
-//                        window.vista = cellView;
-//                        console.log(elem, vista);
+                    var pathEdicion = elem.editables;
+                    window.elem = elem;
+                    window.vista = cellView;
+                    console.log(elem, vista, evt, x, y);
                     for (var i = 0; i < pathEdicion.length; i++) {
-                        var selector = pathEdicion[i].split('/').reverse().join('');
-                        var editando = $(selector);
+                        var editando = cellView.$(elem.editablesRenderizadosEnVista[i]);
+                        if (editando.length != 1){
+                            console.error(elem.attributes.type + ".editablesRenderizadosEnVista esta mal definido");
+                            break;
+                        }
+                        editando = editando[0];
                         console.log(editando);
                         /*var editor = document.createElement('input');
 			    editor.setAttribute('type', 'text');*/
                         var editor = document.createElement('textarea');
                         var estilo = editor.style;
                         $('body').append(editor);
-                        
-                        console.log(editando);
-                        editando = _.find(
-                            editando,
-                            function(e){return $(e).parentsUntil(cellView.$el, 'svg').length == 0}
-                        );
+
                         var medidas = editando.getBoundingClientRect();
                         estilo.position = 'absolute';
                         estilo.top = parseInt(medidas.top) + "px";
@@ -231,7 +216,7 @@ angular.module('diagramasApp')
                         editor.referenciaEditable = pathEdicion[i];
                         editor.classList.add("volame");
                         editor.onblur = (function (evt) {
-                            this.referenciaCell.attr(this.referenciaEditable, this.value);
+                            this.referenciaCell.set(this.referenciaEditable, this.value);
                             this.id = 'sacame';
                             $('#sacame').remove();
                         });

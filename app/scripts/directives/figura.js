@@ -15,10 +15,10 @@ angular.module('diagramasApp')
                 figura: '=figura'
             },
             link: function postLink(scope, element, attrs) {
-                console.log("scope", scope);
-                console.log("element", element);
+//                console.log("scope", scope);
+//                console.log("element", element);
 //                console.log("attrs", attrs);
-                window.longa = element.children();
+//                window.longa = element.children();
                 element.children().attr("width", scope.figura.ancho);
                 element.children().attr("height", scope.figura.alto);
                 element.children().append(angular.element(scope.figura));
