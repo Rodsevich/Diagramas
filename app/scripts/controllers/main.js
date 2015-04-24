@@ -22,6 +22,7 @@ angular.module('diagramasApp')
                 width: $('#hoja').width(),
                 height: $('#hoja').height(),
                 model: $scope.diagrama,
+                linkConnectionPoint: joint.util.shapePerimeterConnectionPoint,
                 gridSize: 1
             });
 
@@ -35,6 +36,7 @@ angular.module('diagramasApp')
 //                console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
                 elem.translate(posX , posY);
                 $scope.diagrama.addCell(elem);
+                elem.toFront();
             };
 
             $scope.figuras = []; //Todo lo que pongo en esta variable va a aparecer en el panel como elemento agregable al diagrama
@@ -42,9 +44,12 @@ angular.module('diagramasApp')
             for (var elem in elementosJoint) {
                 //Arreglando aca
                 $scope.elementos[elem] = new elementosJoint[elem]();
+                $scope.elementos[elem].set('inPorts', ['in1','in2']);
+                $scope.elementos[elem].set('outPorts', ['out']);
                 $scope.elementos[elem].set($scope.elementos[elem].editables[0], elem);
                 $scope.diagrama.addCell($scope.elementos[elem]);
                 var BBox = $scope.elementos[elem].findView($scope.papel_diagrama).getBBox();
+//                console.log(BBox);
                 var transX = Math.abs(BBox.x) + 2;
                 var transY = Math.abs(BBox.y) - 2;
                 //Transladar segun los valores de BBox
@@ -185,7 +190,7 @@ angular.module('diagramasApp')
                     var pathEdicion = elem.editables;
                     window.elem = elem;
                     window.vista = cellView;
-                    console.log(elem, vista, evt, x, y);
+//                    console.log(elem, vista, evt, x, y);
                     for (var i = 0; i < pathEdicion.length; i++) {
                         var editando = cellView.$(elem.editablesRenderizadosEnVista[i]);
                         if (editando.length != 1){
@@ -193,7 +198,7 @@ angular.module('diagramasApp')
                             break;
                         }
                         editando = editando[0];
-                        console.log(editando);
+//                        console.log(editando);
                         /*var editor = document.createElement('input');
 			    editor.setAttribute('type', 'text');*/
                         var editor = document.createElement('textarea');
@@ -222,7 +227,7 @@ angular.module('diagramasApp')
                         });
                         editor.onfocus = function (evt) {
                             this.classList.remove("volame");
-                            console.log(this);
+//                            console.log(this);
                             $('.volame').remove();
                         }
                             //console.log(editando);
@@ -252,7 +257,10 @@ angular.module('diagramasApp')
 
                         reader.onload = (function (theFile) {
                             return function (e) {
-                                $scope.diagrama.fromJSON(JSON.parse(e.target.result));
+                                var datos = JSON.parse(e.target.result);
+                                $scope.diagrama.fromJSON(datos);
+                                $scope.enlaces = datos.enlaces;
+                                console.log($scope.enlaces);
                             }
                         })(f);
                         reader.readAsText(f);
@@ -281,7 +289,7 @@ angular.module('diagramasApp')
                     evt.stopPropagation(); //porque el modo actual no lo permite
                 }
             }, true);
-//            $scope.diagrama.clear();
+            $scope.diagrama.clear();
             
             window.enlaces = $scope.enlaces = {};
             $scope.diagrama.on("add", function(cell){
@@ -304,7 +312,10 @@ angular.module('diagramasApp')
                     var targetNombre = $scope.diagrama.getCell(target.id).attr('.label/text');
                     var desde = sourceNombre + '.' + sourcePort;
                     var hasta = targetNombre + '.' + targetPort;
-                    $scope.enlaces[link.id] = desde + " --> " + hasta;
+                    $scope.enlaces[link.id] = {
+                        textual: desde + " --> " + hasta,
+                        logico: source.id + " --> " + target.id
+                    };
 //                    console.log(JSON.stringify($scope.enlaces));
 //                    console.log($scope.enlaces);
 //                    console.log(desde,hasta);

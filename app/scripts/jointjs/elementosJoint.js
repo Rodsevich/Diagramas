@@ -346,10 +346,11 @@ angular.module('diagramasApp')
                    width: 110,
                    height: 110
                },
-               inPorts: ['in1','in2'],
-               outPorts: ['out'],
+               inPorts: [],
+               outPorts: [],
                attrs: {
-                   '.body': { fill: '#90b42d', rx: 2, ry: 2 },
+                   '.body': { fill: '#90b42d', rx: 2, ry: 2,
+                             magnet: true },
                    '.label': {
                         text: 'Nombrame',
 //                        'ref-x': 0.5,
@@ -359,6 +360,7 @@ angular.module('diagramasApp')
                         fill: '#260b81',
                         'font-size': 22
                     },
+                   '.inPorts .port-label': { fill: '#004', 'font-weight':'bold'},
                    '.inPorts rect': { fill: '#f25242' },
                    '.outPorts rect': { fill: '#983126' },
 //                   '.inPorts .port-label': {  },
@@ -368,6 +370,7 @@ angular.module('diagramasApp')
            }, joint.shapes.devs.Model.prototype.defaults),
            //En el primer elemento de 'editables' pone lo que va a servir como nombre del objeto
             editables: ['nombre'],
+            editablesRenderizadosEnVista: ['.label'],
             initialize: function(){
                 joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
                 this.on("change:nombre", function(modelo, nuevoValor, opciones){
@@ -375,7 +378,6 @@ angular.module('diagramasApp')
                     this.attr(".label/text", nuevoValor);
                 })
             },
-            editablesRenderizadosEnVista: ['.label/text']
         });
         
         joint.shapes.elementos.Contenedor = joint.shapes.devs.Model.extend({
@@ -386,8 +388,8 @@ angular.module('diagramasApp')
                    width: 190,
                    height: 100
                },
-               inPorts: ['in1','in2'],
-               outPorts: ['out'],
+               inPorts: [],
+               outPorts: [],
                attrs: {
                    '.body': { fill: 'rgba(0,0,0,0.04)', rx: 3, ry: 3 },
                    '.label': {
@@ -452,7 +454,7 @@ angular.module('diagramasApp')
         });
 
         return {
-//            Proceso: joint.shapes.elementos.Base,
+            Proceso: joint.shapes.elementos.Base,
             Contenedor: joint.shapes.elementos.Contenedor,
 //            Comienzo: joint.shapes.uml.StartState,
 //            Fin: joint.shapes.uml.EndState,

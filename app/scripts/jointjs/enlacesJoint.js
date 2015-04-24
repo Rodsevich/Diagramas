@@ -100,6 +100,7 @@ angular.module('diagramasApp')
             }
         });
         return {
+//            Flecha: joint.shapes.uml.Flecha,
 //            Herencia: joint.shapes.uml.Flecha,
 //            Asociacion: joint.shapes.uml.Association,
 //            Transicion: joint.shapes.uml.Transition,

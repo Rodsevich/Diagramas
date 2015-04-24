@@ -4,6 +4,10 @@
 @import "normalize.scss";
 @import "joint.css";
 
+body{
+    @include background-image(linear-gradient(to right, #FFF, #EEE));
+}
+
 #panel{
     /*    width: 20vw;
 	min-width: 5cm;
@@ -68,6 +72,7 @@ $margen-hoja-largo: #{$margen-hoja}vw;
 	color: gray;
     }
     background-image: url(../images/cuadricula.png);
+    background-color: white;
     /*    margin: 1em;
 	display: inline-block;
 	width: calc(80vw - 2 * 2em);
@@ -137,13 +142,14 @@ $margen-hoja-largo: #{$margen-hoja}vw;
     opacity: 0;
 }
 
-.manejarPorts{
+.portsTools, .resizeTools{
     opacity: 0.03;
     transition: opacity 1.4s;
     cursor: pointer;
 }
 
-.element:hover .manejarPorts{
+.element:hover .portsTools,
+.element:hover .resizeTools{
     transition: opacity 0.3s;
     opacity: 1;
 }
@@ -152,7 +158,8 @@ figura{
     .port-label{
         font-weight: bold;
     }
-    .manejarPorts{
+    .portsTools,
+    .resizeTools{
         display: none;
     }
 }
