@@ -22,7 +22,7 @@ body{
     box-shadow: -1px 0 8px 1px;
     border-left: 1px #6B894B solid;
     color: white;
-    span {
+    &> span, &>header>span {
         text-align: center;
         display: block;
         font-size: 30px;
@@ -124,22 +124,24 @@ $margen-hoja-largo: #{$margen-hoja}vw;
 	}
     }
 }
-
-#file-image {
-    position: relative;
-//    width: 40px;
-//    height: 40px;
+operacion{
     cursor: pointer;
-    overflow: hidden;
-}
+
+    #file-image {
+        position: relative;
+    //    width: 40px;
+    //    height: 40px;
+        overflow: hidden;
+    }
 
 
-#file-image input {
-    height: 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    opacity: 0;
+    #file-image input {
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        opacity: 0;
+    }
 }
 
 .portsTools, .resizeTools{
