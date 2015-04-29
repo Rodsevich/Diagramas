@@ -15,6 +15,20 @@ angular.module('diagramasApp')
                     resizeToolsMarkup: '<path class="resize"/>',
                     moverToolsMarkup: '<path class="mover"/>',
                     
+                    defaults: {
+                        '.portsTools path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
+                        '.portsTools .remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
+                        '.portsTools .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
+                        '.portsTools .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
+                        '.resizeTools .resize': {
+                            'd': 'M 0,10l10,0l0,-10z M -2,13l15,0l0,-14l0,14',
+                            fill: 'black', stroke: 'black',
+                            ref: '.body', 'ref-dx':10, 'ref-dy':10 },
+                        '.resizeTools .mover': {
+                            'd': 'M 0,15l5,-3l0,6l-5,-3l30,0l-5,-3l0,6l5,-3l-15,0l0,15l-3,-5l6,0l-3,5l0,-30l-3,5l6,0l-3,-5l0,15',
+                            fill: 'black', stroke: 'black',
+                            ref: '.body', 'ref-x':-10, 'ref-dy':10 
+                    }
 //                    renderTools: function () {
 //                        if(this.model.expandible){
 //                            
@@ -46,6 +60,7 @@ this.$('.resizeTools .resize')[0].addEventListener("mousedown", function(e){
         modelo.resize(bbox.width + difX, bbox.height + difY);
     };
     document.onmouseup = function(e){
+        document.valoresResize = null;
         document.onmousemove = null;
         document.onmouseup = null;
     }
@@ -89,18 +104,7 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
             '.outPorts .port-label': { x: 15, fill: '#000' },
             '.inPorts .port-label': { x:-15, 'text-anchor': 'end'},
 //            '.portsTools': {x:-20, y:-20, ref: '.body', width: 140, height: 120},
-            '.portsTools path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
-            '.portsTools .remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
-            '.portsTools .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
-            '.portsTools .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
-            '.resizeTools .resize': {
-                'd': 'M 0,10l10,0l0,-10z M -2,13l15,0l0,-14l0,14',
-                fill: 'black', stroke: 'black',
-                ref: '.body', 'ref-dx':10, 'ref-dy':10 },
-            '.resizeTools .mover': {
-                'd': 'M 0,15l5,-3l0,6l-5,-3l30,0l-5,-3l0,6l5,-3l-15,0l0,15l-3,-5l6,0l-3,5l0,-30l-3,5l6,0l-3,-5l0,15',
-                fill: 'black', stroke: 'black',
-                ref: '.body', 'ref-x':-10, 'ref-dy':10 }
+            
         }
 
     }, joint.shapes.basic.Generic.prototype.defaults),
@@ -141,7 +145,7 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
 
 joint.shapes.devs.Link = joint.dia.Link.extend({
     defaults: {
-        type: 'uml.Flecha',
+        type: 'link',
         attrs: {
             '.connection': {
                 stroke: 'black',

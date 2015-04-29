@@ -23,6 +23,7 @@ angular.module('diagramasApp')
                 height: $('#hoja').height(),
                 model: $scope.diagrama,
                 linkConnectionPoint: joint.util.shapePerimeterConnectionPoint,
+                defaultLink: joint.shapes.devs.Link,
                 gridSize: 1
             });
 
