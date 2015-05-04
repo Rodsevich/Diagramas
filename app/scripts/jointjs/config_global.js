@@ -5,45 +5,35 @@ angular.module('diagramasApp')
         // No hago nada, esto es solo para llamar al factory y q borre el joint global
     }])
     .factory("joint", ["$window", function ($window) {
-                var joint = $window.joint;
-                //$window.joint = null;
-                //delete($window.joint);
+        var joint = $window.joint;
+        var V = $window.V;
+        //$window.joint = null;
+        //delete($window.joint);
 
-                //Adicion de herramienta de resize en todas las vistas
-                joint.shapes.TooledViewInterface = {
-                    portsToolsMarkup: '<g class="handleInPorts"><path class="aggregate"/><rect class="remove"/></g><g class="handleOutPorts"><path class="aggregate"/><rect class="remove"/></g>',
-                    resizeToolsMarkup: '<path class="resize"/>',
-                    moverToolsMarkup: '<path class="mover"/>',
-                    
-                    defaults: {
-                        '.portsTools path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
-                        '.portsTools .remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
-                        '.portsTools .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
-                        '.portsTools .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
-                        '.resizeTools .resize': {
-                            'd': 'M 0,10l10,0l0,-10z M -2,13l15,0l0,-14l0,14',
-                            fill: 'black', stroke: 'black',
-                            ref: '.body', 'ref-dx':10, 'ref-dy':10 },
-                        '.resizeTools .mover': {
-                            'd': 'M 0,15l5,-3l0,6l-5,-3l30,0l-5,-3l0,6l5,-3l-15,0l0,15l-3,-5l6,0l-3,5l0,-30l-3,5l6,0l-3,-5l0,15',
-                            fill: 'black', stroke: 'black',
-                            ref: '.body', 'ref-x':-10, 'ref-dy':10 
-                    }
-//                    renderTools: function () {
-//                        if(this.model.expandible){
-//                            
-//                        }
-//                    },
-                    update: function(){
-                        var contenedorResize = this.$('.resizeTools').empty();
-                        contenedorResize.append(V(this.resizeToolsMarkup).node);
-                        contenedorResize.append(V(this.moverToolsMarkup).node);
-                        this.$container = this.$('.portsTools').empty();
-                        var herramientasPorts = V(this.portsToolsMarkup);
-                        for(var i = 0; i < herramientasPorts.length; i++)
-                            this.$container.append(herramientasPorts[i].node);
-                        joint.shapes.basic.PortsViewInterface.update.apply(this, arguments);
-                        var modelo = this.model;
+        //Adicion de herramienta de resize en todas las vistas
+        joint.addons = [];
+    joint.addons.TooledViewInterface = {
+        renderTools: function () {
+            if(this.model.moveTool){
+                
+            }
+            if(this.model.resizeTool){
+
+            }
+            if(this.model.moveTool){
+                
+            }
+        },
+        update: function(){
+            var contenedorResize = this.$('.resizeTool').empty();
+            contenedorResize.append(V(this.model.resizeToolsMarkup).node);
+            contenedorResize.append(V(this.model.moverToolsMarkup).node);
+            this.$container = this.$('.portsTool').empty();
+            var herramientasPorts = V(this.model.portsToolsMarkup);
+            for(var i = 0; i < herramientasPorts.length; i++)
+                this.$container.append(herramientasPorts[i].node);
+            joint.shapes.basic.PortsViewInterface.update.apply(this, arguments);
+            var modelo = this.model;
         var funcAgregar = this.model.agregarPort;
         var funcRemover = this.model.removerPort;
         this.$('.portsTools .handleInPorts .aggregate').on('click',function(){ funcAgregar.apply(modelo, ["in"])});
@@ -63,18 +53,84 @@ this.$('.resizeTools .resize')[0].addEventListener("mousedown", function(e){
         document.valoresResize = null;
         document.onmousemove = null;
         document.onmouseup = null;
-    }
+    };
     e.stopPropagation();
 }, true);
                     }
                 };
         
+    joint.addons.TooledModelInterface = {
+        interface: 'Tools',
+        portsToolsMarkup: '<g class="handleInPorts"><path class="aggregate"/><rect class="remove"/></g><g class="handleOutPorts"><path class="aggregate"/><rect class="remove"/></g>',
+        resizeToolsMarkup: '<path class="resize"/>',
+        moveToolsMarkup: '<path class="move"/>',
+        
+        moveTool: true,
+        resizeTool: true,
+        portsTool: {addInPort: {'addInPortMethod': ['in']},
+                    removeInPort: {'removeInPortMethod': ['in']},
+                    addOutPort: {'addOutPortMethod': ['out']},
+                    removeOutPort: {'removeOutPortMethod': ['out']}},
+
+        toolsDefaults: {
+            '.portsTools path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
+            '.portsTools .remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
+            '.portsTools .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
+            '.portsTools .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
+            '.resizeTools .resize': {
+                'd': 'M 0,10l10,0l0,-10z M -2,13l15,0l0,-14l0,14',
+                fill: 'black', stroke: 'black',
+                ref: '.body', 'ref-dx':10, 'ref-dy':10 },
+            '.resizeTools .move': {
+                'd': 'M 0,15l5,-3l0,6l-5,-3l30,0l-5,-3l0,6l5,-3l-15,0l0,15l-3,-5l6,0l-3,5l0,-30l-3,5l6,0l-3,-5l0,15',
+                fill: 'black', stroke: 'black',
+                ref: '.body', 'ref-x':-10, 'ref-dy':10 
+            }
+        },
+        checkMarkup: function(thisInterface){
+            //Get all the properties defined in this interface
+            //ending with a 'Tool' expression in their names
+            var tools = _.filter(Object.getOwnPropertyNames(thisInterface), function(name){ return /Tool$/.test(name)});
+            var errorMsg = _.template(this.get("type") + " element extended " + this.interface + " Interface but didn't deactivated it's <%= property %> property and/or didn't included '<g class=\"<%= property %>\"/>' in it's markup.");
+            var requiredMarkup = _.template("<g.+class=['\"]?<%= tool %>['\"]?.*/>");
+            //Check that the markup of the Object is well defined
+            //for the use of each Tool not deactivated
+            for(var i = 0; i < tools.length; i++){
+                var tool = tools[i];
+                if(this[tool]){
+                    var neededMarkup = requiredMarkup({tool: tool});
+                    var regEx = new RegExp(neededMarkup);
+                    if(false == regEx.test(this.markup)){
+                        throw new Error(errorMsg({property: tool}));
+                    }
+                }
+            }
+        },
+        initialize: function(){
+            var thisInterface = this.constructor.__super__;
+            while(!thisInterface.hasOwnProperty("interface") || !(thisInterface.interface == "Tools")){
+                thisInterface = thisInterface.constructor.__super__;
+            }
+            this.checkMarkup(thisInterface);
+            var parentWithInitialize = thisInterface.constructor.__super__;
+            while(!parentWithInitialize.hasOwnProperty("initialize")){
+                parentWithInitialize = parentWithInitialize.constructor.__super__;
+            }
+            parentWithInitialize.initialize.apply(this, arguments);
+            var attrs = _.clone(this.toolsDefaults);
+            joint.util.deepMixin(attrs, this.attributes.attrs);
+            this.attributes.attrs = attrs;
+        }
+    };
         // Plugin para trabajar con Ports
         joint.shapes.devs = {};
 
-joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
+//joint.shapes.devs.Model = joint.shapes.devs.Modeloo.extend( joint.addons.TooledModelInterface);
+//joint.shapes.devs.Modeloo = joint.shapes.basic.Generic.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
+joint.shapes.devs.Modeloo = joint.shapes.basic.Generic.extend( joint.addons.TooledModelInterface);
+joint.shapes.devs.Model = joint.shapes.devs.Modeloo.extend(_.extend({}, joint.shapes.basic.PortsModelInterface, {
 
-    markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/><g class="portsTools"/><g class="resizeTools"/></g>',
+    markup: '<g class="rotatable"><g class="scalable"><rect class="body"/></g><text class="label"/><g class="inPorts"/><g class="outPorts"/><g class="portsTool"/><g class="resizeTool"/><g class="moveTool"/></g>',
     portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/><text></text></g>',
 
     defaults: joint.util.deepSupplement({
@@ -121,6 +177,7 @@ joint.shapes.devs.Model = joint.shapes.basic.Generic.extend(_.extend({}, joint.s
     },
     //Hacer algo en el initialize
 //    initialize: function(){
+//        console.error("este mensaje no deberia salir");
 //        joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
 //    },
     getPortAttrs: function(portName, index, total, selector, type) {
@@ -161,8 +218,8 @@ joint.shapes.devs.Link = joint.dia.Link.extend({
 });
 
 //,{
-var pp = joint.dia.ElementView.extend(joint.shapes.basic.PortsViewInterface);
-joint.shapes.devs.ModelView = pp.extend(joint.shapes.TooledViewInterface);
+joint.shapes.devs.ModelView = joint.dia.ElementView.extend(joint.shapes.basic.PortsViewInterface);
+//joint.shapes.devs.ModelView = pp.extend(joint.addons.TooledViewInterface);
 //    update: function(){
 //        
 //        joint.shapes.basic.PortsViewInterface.update.apply(this, arguments);
@@ -178,7 +235,7 @@ joint.shapes.devs.ModelView = pp.extend(joint.shapes.TooledViewInterface);
 //}
 //));
 //        window.longa = decoy;
-//        joint.shapes.devs.ModelView = decoy.extend(joint.shapes.TooledViewInterface);
+//        joint.shapes.devs.ModelView = decoy.extend(joint.addons.TooledViewInterface);
 
         return (joint);
     }]);

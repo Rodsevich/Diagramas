@@ -372,7 +372,13 @@ angular.module('diagramasApp')
             editables: ['nombre'],
             editablesRenderizadosEnVista: ['.label'],
             initialize: function(){
-                joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
+                console.log(this.attributes);
+                var parent = this.constructor.__super__;
+                while(!parent.hasOwnProperty("initialize")){
+                    parent = parent.constructor.__super__;
+                }
+//                parent = parent.constructor.__super__;
+                parent.initialize.apply(this, arguments);
                 this.on("change:nombre", function(modelo, nuevoValor, opciones){
                     //modelo === this
                     this.attr(".label/text", nuevoValor);
@@ -421,7 +427,13 @@ angular.module('diagramasApp')
             editables: ['nombre'],
             editablesRenderizadosEnVista: ['.label'],
             initialize: function(){
-                joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
+//                joint.shapes.basic.PortsModelInterface.initialize.apply(this, arguments);
+                var parent = this.constructor.__super__;
+                while(!parent.hasOwnProperty("initialize")){
+                    parent = parent.constructor.__super__;
+                }
+//                parent = parent.constructor.__super__;
+                parent.initialize.apply(this, arguments);
                 this.on("change:nombre", function(modelo, nuevoValor, opciones){
                     //modelo === this
                     this.attr(".label/text", nuevoValor);

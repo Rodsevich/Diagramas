@@ -23,7 +23,7 @@ angular.module('diagramasApp')
                 height: $('#hoja').height(),
                 model: $scope.diagrama,
                 linkConnectionPoint: joint.util.shapePerimeterConnectionPoint,
-                defaultLink: joint.shapes.devs.Link,
+//                defaultLink: joint.shapes.devs.Link,
                 gridSize: 1
             });
 
@@ -189,13 +189,13 @@ angular.module('diagramasApp')
 //                    var editables = $('#' + cellView.id + ' text');
                     var elem = $scope.diagrama.getCell(cellView.model.id);
                     var pathEdicion = elem.editables;
-                    window.elem = elem;
-                    window.vista = cellView;
+//                    window.elem = elem;
+//                    window.vista = cellView;
 //                    console.log(elem, vista, evt, x, y);
                     for (var i = 0; i < pathEdicion.length; i++) {
                         var editando = cellView.$(elem.editablesRenderizadosEnVista[i]);
                         if (editando.length != 1){
-                            console.error(elem.attributes.type + ".editablesRenderizadosEnVista esta mal definido");
+                            throw new Error(elem.attributes.type + ".editablesRenderizadosEnVista esta mal definido");
                             break;
                         }
                         editando = editando[0];
@@ -272,7 +272,8 @@ angular.module('diagramasApp')
                     evt.stopPropagation(); //porque el modo actual no lo permite
                 }
             }, true);
-            $scope.diagrama.clear();
+            
+//            $scope.diagrama.clear();
             
             window.enlaces = $scope.enlaces = {};
             $scope.diagrama.on("add", function(cell){
