@@ -13,18 +13,22 @@ angular.module('diagramasApp')
         //Adicion de herramienta de resize en todas las vistas
         joint.addons = [];
     joint.addons.TooledViewInterface = {
-        renderTools: function () {
-            if(this.model.moveTool){
-                
-            }
-            if(this.model.resizeTool){
-
-            }
-            if(this.model.moveTool){
-                
-            }
+        renderMoveTool: function () {
+        },
+        renderPortsTool: function () {
+        },
+        renderResizeTool: function () {
         },
         update: function(){
+            if(this.model.moveTool){
+                this.renderMoveTool();
+            }
+            if(this.model.resizeTool){
+                this.renderResizeTool();
+            }
+            if(_.isObject(this.model.portsTool)){
+                this.renderPortsTool();
+            }
             var contenedorResize = this.$('.resizeTool').empty();
             contenedorResize.append(V(this.model.resizeToolsMarkup).node);
             contenedorResize.append(V(this.model.moverToolsMarkup).node);
