@@ -77,9 +77,9 @@ angular.module('diagramasApp')
         controller: 'AccountCtrl'
       })
 
-      .when('/chat', {
-        templateUrl: 'views/chat.html',
-        controller: 'ChatCtrl'
+      .when('/plugin', {
+        templateUrl: 'views/plugin.html',
+        controller: 'PluginCtrl'
       })
       .otherwise({redirectTo: '/'});
   }])

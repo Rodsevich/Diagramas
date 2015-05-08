@@ -372,7 +372,6 @@ angular.module('diagramasApp')
             editables: ['nombre'],
             editablesRenderizadosEnVista: ['.label'],
             initialize: function(){
-                console.log(this.attributes);
                 var parent = this.constructor.__super__;
                 while(!parent.hasOwnProperty("initialize")){
                     parent = parent.constructor.__super__;
@@ -388,6 +387,7 @@ angular.module('diagramasApp')
         
         joint.shapes.elementos.Contenedor = joint.shapes.devs.Model.extend({
             portMarkup: '<g class="port port<%= id %>"><rect class="port-body"/><text class="port-label"/></g>',
+            moveTool: false,
             defaults: joint.util.deepSupplement({
                 type: 'elementos.Contenedor',
                 size: {

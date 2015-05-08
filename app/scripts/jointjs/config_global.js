@@ -12,83 +12,131 @@ angular.module('diagramasApp')
 
         //Adicion de herramienta de resize en todas las vistas
         joint.addons = [];
+        window.vista = [];
     joint.addons.TooledViewInterface = {
+        interface: 'Tools',
         renderMoveTool: function () {
+            var moveContainer = this.$('.moveTool').empty();
+            for(var elem of V(this.model.moveToolMarkup))
+                moveContainer.append(elem.node);
         },
-        renderPortsTool: function () {
+        renderPortsTool: function (config) {
+            //Add the Nodes
+            var $portsContainer = this.$('.portsTool').empty();
+            var SVGPortsElements = V(this.model.portsToolMarkup);
+            var funcRemove = this.model[config.removePortFunction];
+            var funcAggregate = this.model[config.addPortFunction];
+            var modelo = this.model;
+            if(config.hasOwnProperty('handleInPorts') && config.handleInPorts){
+                var inPortsGroup = SVGPortsElements[0];
+                $portsContainer.append(inPortsGroup.node);
+                this.$('.portsTool .handleInPorts .aggregate').on('click',function(){ funcAggregate.apply(modelo, ["in"])});
+                this.$('.portsTool .handleInPorts .remove').on('click', function(){ funcRemove.apply(modelo, ["in"])});
+            }
+            if(config.hasOwnProperty('handleOutPorts') && config.handleOutPorts){
+                var outPortsGroup = SVGPortsElements[1];
+                $portsContainer.append(outPortsGroup.node);
+                this.$('.portsTool .handleOutPorts .aggregate').on('click', function(){ funcAggregate.apply(modelo, ["out"])});
+                this.$('.portsTool .handleOutPorts .remove').on('click', function(){ funcRemove.apply(modelo, ["out"])});
+            }
+            //Inherited from joint.shapes.basic.PortsViewInterface
+            //this.renderPorts(); <al parecer ya no es necesario>
         },
         renderResizeTool: function () {
+            var resizeContainer = this.$('.resizeTool').empty();
+            resizeContainer.append(V(this.model.resizeToolMarkup).node);
+            //resizeContainer.find('path.resize')[0]
+            var modelo = this.model;
+            var performanceLock = false;
+            resizeContainer.children()[0].addEventListener("mousedown", function(e){
+                document.resizeInitialValues = {x: e.pageX, y:e.pageY, model: modelo, bbox: $(this).closest(".element").find(".scalable")[0].getBoundingClientRect()};
+                document.onmousemove = function(e){
+                    if(!performanceLock){
+                        performanceLock = true;
+                        setTimeout(function(){
+                            performanceLock = false;
+                        }, 77);
+                        var model = document.resizeInitialValues.model;
+                        var bbox = document.resizeInitialValues.bbox;
+                        var difX = e.pageX - document.resizeInitialValues.x;
+                        var difY = e.pageY - document.resizeInitialValues.y;
+                        model.resize(bbox.width + difX, bbox.height + difY);
+                    }
+                };
+                document.onmouseup = function(e){
+                    document.resizeInitialValues = null;
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+                };
+                e.stopPropagation();
+            }, true);
         },
         update: function(){
+            console.log("se ejecuto el update de " + this.model.prop('type'));
+            window.vista.push(this);
             if(this.model.moveTool){
                 this.renderMoveTool();
             }
             if(this.model.resizeTool){
                 this.renderResizeTool();
             }
-            if(_.isObject(this.model.portsTool)){
-                this.renderPortsTool();
+            if(this.model.portsTool && (_.isObject(this.model.portsTool) && !_.isEmpty(this.model.portsTool))){
+                this.renderPortsTool(this.model.portsTool);
             }
-            var contenedorResize = this.$('.resizeTool').empty();
-            contenedorResize.append(V(this.model.resizeToolsMarkup).node);
-            contenedorResize.append(V(this.model.moverToolsMarkup).node);
-            this.$container = this.$('.portsTool').empty();
-            var herramientasPorts = V(this.model.portsToolsMarkup);
-            for(var i = 0; i < herramientasPorts.length; i++)
-                this.$container.append(herramientasPorts[i].node);
-            joint.shapes.basic.PortsViewInterface.update.apply(this, arguments);
-            var modelo = this.model;
-        var funcAgregar = this.model.agregarPort;
-        var funcRemover = this.model.removerPort;
-        this.$('.portsTools .handleInPorts .aggregate').on('click',function(){ funcAgregar.apply(modelo, ["in"])});
-        this.$('.portsTools .handleInPorts .remove').on('click', function(){ funcRemover.apply(modelo, ["in"])});
-        this.$('.portsTools .handleOutPorts .aggregate').on('click', function(){ funcAgregar.apply(modelo, ["out"])});
-        this.$('.portsTools .handleOutPorts .remove').on('click', function(){ funcRemover.apply(modelo, ["out"])});
-this.$('.resizeTools .resize')[0].addEventListener("mousedown", function(e){
-    document.valoresResize = {x: e.pageX, y:e.pageY, model: modelo, bbox:$(this).closest(".element").find(".scalable")[0].getBoundingClientRect()};
-    document.onmousemove = function(e){
-        var modelo = document.valoresResize.model;
-        var bbox = document.valoresResize.bbox;
-        var difX = e.pageX - document.valoresResize.x;
-        var difY = e.pageY - document.valoresResize.y;
-        modelo.resize(bbox.width + difX, bbox.height + difY);
+            var thisInterface = Object.getPrototypeOf(this);
+            while(!(thisInterface.hasOwnProperty("interface") && (thisInterface.interface == "Tools"))){
+                thisInterface = thisInterface.constructor.__super__;
+            }
+            var parentWithUpdate = thisInterface.constructor.__super__;
+            while(!parentWithUpdate.hasOwnProperty("update")){
+                parentWithUpdate = parentWithUpdate.constructor.__super__;
+            }
+            parentWithUpdate.update.apply(this, arguments);
+        }
     };
-    document.onmouseup = function(e){
-        document.valoresResize = null;
-        document.onmousemove = null;
-        document.onmouseup = null;
-    };
-    e.stopPropagation();
-}, true);
-                    }
-                };
         
     joint.addons.TooledModelInterface = {
         interface: 'Tools',
-        portsToolsMarkup: '<g class="handleInPorts"><path class="aggregate"/><rect class="remove"/></g><g class="handleOutPorts"><path class="aggregate"/><rect class="remove"/></g>',
-        resizeToolsMarkup: '<path class="resize"/>',
-        moveToolsMarkup: '<path class="move"/>',
+        portsToolMarkup: '<g class="handleInPorts"><path class="aggregate"/><rect class="remove"/></g><g class="handleOutPorts"><path class="aggregate"/><rect class="remove"/></g>',
+        resizeToolMarkup: '<path class="resize"/>',
+        moveToolMarkup: '<circle class="area"/><path class="visual"/>',
         
         moveTool: true,
         resizeTool: true,
-        portsTool: {addInPort: {'addInPortMethod': ['in']},
-                    removeInPort: {'removeInPortMethod': ['in']},
-                    addOutPort: {'addOutPortMethod': ['out']},
-                    removeOutPort: {'removeOutPortMethod': ['out']}},
+        portsTool: {handleInPorts: true,
+                    handleOutPorts: true,
+                    addPortFunction: 'addPort',
+                    removePortFunction: 'removePort'},
 
+        addPortsDefaultMessage: "Introduce the name of the new <%= portType %>Port:",
+        addPort: function(portType){
+            var portsArray = (portType == "in") ? this.get("inPorts") : this.attributes.outPorts;
+            var name = prompt(_.template(this.addPortsDefaultMessage, {portType: portType}), portType + "Port" + (portsArray.length + 1));
+            portsArray.push(name);
+            this.trigger("change:" + portType + "Ports");
+        },
+        removePort: function(portType){
+            var portsArray = (portType == "in") ? this.attributes.inPorts : this.get("outPorts");
+            portsArray.splice(-1, 1);
+            this.trigger("change:" + portType + "Ports");
+        },
+        
         toolsDefaults: {
-            '.portsTools path': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
-            '.portsTools .remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
-            '.portsTools .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
-            '.portsTools .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
-            '.resizeTools .resize': {
+            '.portsTool path.aggregate': {'d': "m0,5l5,0l0,-5l5,0l0,5l5,0l0,5-5,0l0,5l-5,0l0,-5l-5,0z", 'stroke-width': 2, stroke:'#000', fill: '#5F5'},
+            '.portsTool rect.remove': {width: 15, height: 6, 'stroke-width': 3, stroke:'#000', fill: '#F55', y: 21},
+            '.portsTool .handleInPorts': {ref: '.body', 'ref-x':-30, 'ref-y':-40},
+            '.portsTool .handleOutPorts': {ref: '.body', 'ref-dx':10, 'ref-y':-40},
+            '.resizeTool .resize': {
                 'd': 'M 0,10l10,0l0,-10z M -2,13l15,0l0,-14l0,14',
                 fill: 'black', stroke: 'black',
                 ref: '.body', 'ref-dx':10, 'ref-dy':10 },
-            '.resizeTools .move': {
+            '.moveTool .visual': {
                 'd': 'M 0,15l5,-3l0,6l-5,-3l30,0l-5,-3l0,6l5,-3l-15,0l0,15l-3,-5l6,0l-3,5l0,-30l-3,5l6,0l-3,-5l0,15',
                 fill: 'black', stroke: 'black',
-                ref: '.body', 'ref-x':-10, 'ref-dy':10 
+                ref: '.body', 'ref-x':-40, 'ref-dy':10 
+            },
+            '.moveTool .area': {
+                ref:'.moveTool .visual', 'ref-x': 0, 'ref-y': 0, cx:'15', cy:'15', r:'15', 'fill-opacity':'0', 'stroke-width':'0'
             }
         },
         checkMarkup: function(thisInterface){
@@ -168,17 +216,6 @@ joint.shapes.devs.Model = joint.shapes.devs.Modeloo.extend(_.extend({}, joint.sh
         }
 
     }, joint.shapes.basic.Generic.prototype.defaults),
-    agregarPort: function(tipo){
-        var arrayPorts = (tipo == "in") ? this.get("inPorts") : this.attributes.outPorts;
-        var nombre = prompt("Mete el nombre del " + tipo +"Port:", tipo + "Port" + (arrayPorts.length + 1));
-        arrayPorts.push(nombre);
-        this.trigger("change:" + tipo + "Ports");
-    },
-    removerPort: function(tipo){
-        var arrayPorts = (tipo == "in") ? this.attributes.inPorts : this.get("outPorts");
-        arrayPorts.splice(-1, 1);
-        this.trigger("change:" + tipo + "Ports");
-    },
     //Hacer algo en el initialize
 //    initialize: function(){
 //        console.error("este mensaje no deberia salir");
@@ -222,7 +259,8 @@ joint.shapes.devs.Link = joint.dia.Link.extend({
 });
 
 //,{
-joint.shapes.devs.ModelView = joint.dia.ElementView.extend(joint.shapes.basic.PortsViewInterface);
+var p = joint.dia.ElementView.extend(joint.shapes.basic.PortsViewInterface);
+joint.shapes.devs.ModelView = p.extend(joint.addons.TooledViewInterface);
 //joint.shapes.devs.ModelView = pp.extend(joint.addons.TooledViewInterface);
 //    update: function(){
 //        

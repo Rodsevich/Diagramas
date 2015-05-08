@@ -47,15 +47,46 @@ body{
     conector .elegido{
         background-color: rgba(0,205,0,0.2);
     }
-    &:hover span{
+    &:hover > span{
 	color: #B1EC39;
     }
     herramienta{
-	cursor: pointer;
-	*[activo="true"]{
-	    background-color: orange;
-	}
-    }	
+	    cursor: pointer;
+        *:hover{
+            background-image:  radial-gradient(rgba(235, 169, 120, 0.4), rgba(255,255,255,0));
+        }
+        *[activo="true"]{
+            background-color: orange;
+        }
+    }
+    operacion{
+        cursor: pointer;
+        *{
+            cursor: pointer;
+        }
+        div {
+            position: relative;
+        //    width: 40px;
+        //    height: 40px;
+            overflow: hidden;
+    //        @include grid-row();
+    //  .custom-column-class {
+            @include grid-column(6);
+            transition: background-color 0.5s;
+            &:hover{
+                background-image:  radial-gradient(rgba(120, 235, 136, 0.2), rgba(255,255,255,0));
+            }
+
+        }
+        #file-image input {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            right: 0;
+            top: 0;
+        }
+    }
 }
 
 .enlazando{
@@ -112,8 +143,8 @@ $margen-hoja-largo: #{$margen-hoja}vw;
 	svg .element{
 	    cursor: url('data:image/x-icon;base64,AAACAAEAICACAAAAAAAwAQAAFgAAACgAAAAgAAAAQAAAAAEAAQAAAAAAgAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAHgAAABgAAAAUAAAAEgAQAAEACAAAgAQAAF/+AAAgBAAAUAgAAEgQAAdcAAACQAAAAUAAAACAAAAAQAAAACAAAABQAAAASAAAAESAAABCgAAAQYAAAEeAAABAAAAAQAAAAkgAAAFQAAAA4AAAAEAAAAAAAA///////////8H////A////wf///8H/7//A/8f/7H/j//4AAf//AAD//wAB//8H4//4A8f/8AHv//gD///8H////h////8f////D////wf///8Df///ED///xg///8YP///ED///xg///0X///4A////Af///4P////H////7//8='), auto;
 	    &.highlighted g g *{
-		stroke: darkgreen;
-		stroke-dasharray: 0;
+            stroke: darkgreen;
+            stroke-dasharray: 0;
 	    }
 	}
     }
@@ -124,34 +155,23 @@ $margen-hoja-largo: #{$margen-hoja}vw;
 	}
     }
 }
-operacion{
-    cursor: pointer;
 
-    #file-image {
-        position: relative;
-    //    width: 40px;
-    //    height: 40px;
-        overflow: hidden;
-    }
-
-
-    #file-image input {
-        height: 100%;
-        position: absolute;
-        top: 0;
-        right: 0;
-        opacity: 0;
-    }
-}
-
-.portsTools, .resizeTools{
-//    opacity: 0.03;
+.portsTool,
+.moveTool,
+.resizeTool{
+    opacity: 0.03;
     transition: opacity 1.4s;
+}
+.portsTool{
     cursor: pointer;
 }
+.resizeTool{
+    cursor: se-resize;
+}
 
-.element:hover .portsTools,
-.element:hover .resizeTools{
+.element:hover .portsTool,
+.element:hover .moveTool,
+.element:hover .resizeTool{
     transition: opacity 0.3s;
     opacity: 1;
 }
@@ -160,8 +180,9 @@ figura{
     .port-label{
         font-weight: bold;
     }
-    .portsTools,
-    .resizeTools{
+    .portsTool,
+    .moveTool,
+    .resizeTool{
         display: none;
     }
 }

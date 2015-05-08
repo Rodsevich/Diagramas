@@ -249,8 +249,36 @@ angular.module('diagramasApp')
             $("body").append(div);
         }*/
 
-            $scope.importar = function () {
-                alert('importa traqnuilo ;) ');
+            $scope.importar = function (inputFileChangedEvent) {
+//            function (evt) {
+//                var files = evt.target.files; // FileList object
+//                // Loop through the FileList and render image files as thumbnails.
+//                for (var i = 0, f; f = files[i]; i++) {
+//                    var reader = new FileReader();
+//
+//                    reader.onload = (function (theFile) {
+//                        return function (e) {
+//                            var datos = JSON.parse(e.target.result);
+//                            $scope.diagrama.fromJSON(datos);
+//                            $scope.enlaces = datos.enlaces;
+//                            console.log($scope.enlaces);
+//                        }
+//                    })(f);
+//                    reader.readAsText(f);
+//                }
+//            };
+                var archivo = inputFileChangedEvent.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = (function (elArchivo) {
+                    return function (e) {
+                        var datos = JSON.parse(e.target.result);
+                        $scope.diagrama.fromJSON(datos);
+                        $scope.enlaces = datos.enlaces;
+                        console.log($scope.enlaces);
+                    }
+                })(archivo);
+                reader.readAsText(archivo);
             }
             $scope.exportar = function () {
                 var data = $scope.diagrama.toJSON();
@@ -273,7 +301,7 @@ angular.module('diagramasApp')
                 }
             }, true);
             
-//            $scope.diagrama.clear();
+            $scope.diagrama.clear();
             
             window.enlaces = $scope.enlaces = {};
             $scope.diagrama.on("add", function(cell){
