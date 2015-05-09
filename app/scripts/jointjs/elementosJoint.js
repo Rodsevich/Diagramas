@@ -350,7 +350,7 @@ angular.module('diagramasApp')
                outPorts: [],
                attrs: {
                    '.body': { fill: '#90b42d', rx: 2, ry: 2,
-                             magnet: true },
+                             magnet: 'true' },
                    '.label': {
                         text: 'Nombrame',
 //                        'ref-x': 0.5,
@@ -410,7 +410,7 @@ angular.module('diagramasApp')
                        'font-size': 22
                     },
                    '.port-body': {
-                       magnet: true,
+                       magnet: 'true',
                        stroke: '#000000',
                        height: 20,
                        x: -10, y: -10

@@ -9,7 +9,7 @@
 angular.module('diagramasApp')
     .directive('herramienta', ["$compile", function ($compile) {
         return {
-            template: '<img src="{{imagen}}" activo="{{modo == operacion}}"></img>',
+            template: '<img src="{{imagen}}" activo="{{modo == operacion}}"></img><span data-tooltip aria-haspopup="true" class="has-tip" title="Hace doble click sobre los elementos">{{operacion | capitalize}}</span></div>',
             restrict: 'E',
             scope: {
                 operacion: '@',

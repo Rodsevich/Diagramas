@@ -26,19 +26,24 @@ angular.module('diagramasApp')
 //                defaultLink: joint.shapes.devs.Link,
                 gridSize: 1
             });
-
-            $scope.onDropComplete = function (elemento, evt) {
-                //		console.log("drop success, data:", data);
-                //		console.log("drop success, evt:", evt);
-                var posX = evt.tx - $scope.papel_diagrama.el.offsetLeft - parseInt($scope.papel_diagrama.$el.css('padding-left'), 10);
-                var posY = evt.ty - $scope.papel_diagrama.el.offsetTop - parseInt($scope.papel_diagrama.$el.css('padding-top'), 10);
-//                console.log(elemento);
-                var elem = elemento.clone();
-//                console.log("Hay q posicionar esto en x: ", posX, " y: ", posY);
-                elem.translate(posX , posY);
-                $scope.diagrama.addCell(elem);
-                elem.toFront();
-            };
+//
+//            a.onDropComplete = function (b, c) {
+//              var d = c.tx - a.papel_diagrama.el.offsetLeft - parseInt(a.papel_diagrama.$el.css('padding-left'), 10),
+//              e = c.ty - a.papel_diagrama.el.offsetTop - parseInt(a.papel_diagrama.$el.css('padding-top'), 10),
+//              f = b.clone();
+//              f.translate(d, e),
+//              a.diagrama.addCell(f),
+//              f.toFront()
+//            },
+            
+    $scope.onDropComplete = function (elemento, evt) {
+        var posX = evt.x - $scope.papel_diagrama.el.offsetLeft - parseInt($scope.papel_diagrama.$el.css('padding-left'), 10) - evt.element.centerX;
+        var posY = evt.y - $scope.papel_diagrama.el.offsetTop - parseInt($scope.papel_diagrama.$el.css('padding-top'), 10) - evt.element.centerY;
+        var elem = elemento.clone();
+        elem.translate(posX , posY);
+        $scope.diagrama.addCell(elem);
+        elem.toFront();
+    };
 
             $scope.figuras = []; //Todo lo que pongo en esta variable va a aparecer en el panel como elemento agregable al diagrama
             var i = 0;
@@ -333,6 +338,6 @@ angular.module('diagramasApp')
 //                    console.log(desde,hasta);
                 }
             });
-            window.escope = $scope;
+//            window.escope = $scope;
  }]); //angular.element($("#panel")).scope().papel_panel.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el
 //$("#v-2").append(angular.element($("#panel")).scope().papel_diagrama.findViewByModel(angular.element($("#panel")).scope().elementos[0]).$el.clone())

@@ -1,8 +1,8 @@
 @import "compass";
 @import "foundation/components/_grid.scss";
+@import "foundation/components/_tooltips.scss";
 //@import "foundation.scss";
 @import "normalize.scss";
-@import "joint.css";
 
 body{
     @include background-image(linear-gradient(to right, #FFF, #EEE));
