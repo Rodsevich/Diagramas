@@ -77,10 +77,6 @@ angular.module('diagramasApp')
         controller: 'AccountCtrl'
       })
 
-      .when('/plugin', {
-        templateUrl: 'views/plugin.html',
-        controller: 'PluginCtrl'
-      })
       .otherwise({redirectTo: '/'});
   }])
 
